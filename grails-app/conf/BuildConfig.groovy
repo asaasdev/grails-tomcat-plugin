@@ -18,7 +18,7 @@ grails.project.dependency.resolution = {
 	}
 
 	dependencies {
-		String tomcatVersion = '9.0.26'
+		String tomcatVersion = '9.0.27'
 		compile "org.apache.tomcat.embed:tomcat-embed-core:$tomcatVersion"
 		['el', 'jasper', 'websocket'].each {
 			runtime "org.apache.tomcat.embed:tomcat-embed-$it:$tomcatVersion"

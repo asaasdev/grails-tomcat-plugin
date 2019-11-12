@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 class TomcatGrailsPlugin {
-	def version = '9.0.26'
+	def version = '9.0.27'
 	def grailsVersion = '2.5 > *'
 	def scopes = [excludes: 'war']
 	def title = 'Apache Tomcat plugin'
-	def description = 'Makes Tomcat 9.x the servlet container for Grails at development time'
+	def description = 'Makes Tomcat 9.0.x the servlet container for Grails at development time'
 	def documentation = 'http://grails.org/plugin/tomcat'
 	def license = 'APACHE'
 	def organization = [name: 'Grails', url: 'http://www.grails.org']
