@@ -19,10 +19,17 @@ grails.project.dependency.resolution = {
 
 	dependencies {
 		String tomcatVersion = '9.0.30'
+        String tomcatLogVersion = '8.5.2'
+
 		compile "org.apache.tomcat.embed:tomcat-embed-core:$tomcatVersion"
-		['el', 'jasper', 'websocket'].each {
+
+        ['el', 'jasper', 'websocket'].each {
 			runtime "org.apache.tomcat.embed:tomcat-embed-$it:$tomcatVersion"
 		}
+
+        ['logging-log4j', 'logging-juli'].each {
+            runtime "org.apache.tomcat.embed:tomcat-embed-$it:$tomcatLogVersion"
+        }
 	}
 
 	plugins {
