@@ -54,8 +54,10 @@ jobs:
     - name: Create Zip and Pom Artifact
       run: |
         filenameZip=$(find . -name "grails-*.zip" | head -1)
+        printenv $filenameZip
         filenameZip=$(basename $filenameZip)
         pluginZip=${filenameZip:7}
+        printenv $pluginZip
         mv $filenameZip $pluginZip
         sha1sum $pluginZip | cut -d " " -f 1 >> $pluginZip.sha1
         version="${${pluginZip/.zip/}#*-}"
