@@ -40,8 +40,8 @@ jobs:
     - name: Grails compile
       run: ./grailsw compile
 
-    - name: Grails compile war
+    - name: Grails package-plugin
       run: ./grailsw package-plugin
 
-    - name: Grails compile war
+    - name: Grails generate-pom
       run: ./grailsw generate-pom
