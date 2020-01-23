@@ -55,19 +55,7 @@ jobs:
       run: |
         filenameZip=$(find . -name "grails-*.zip" | head -1)
         printenv $filenameZip
-        filenameZip=$(basename $filenameZip)
-        pluginZip=${filenameZip:7}
-        printenv $pluginZip
-        mv $filenameZip $pluginZip
-        sha1sum $pluginZip | cut -d " " -f 1 >> $pluginZip.sha1
-        version="${${pluginZip/.zip/}#*-}"
-        filenamePom=$(find . -name "pom.xml" | head -1)
-        mv $filenamePom ./tomcat-${version}.pom
-        filenamePom=$(basename $filenamePom)
-        sha1sum tomcat-${version}.pom | cut -d " " -f 1 >> tomcat-${version}.pom.sha1
-        mkdir -p ./plugin-artifacts
-        mv tomcat-* ./plugin-artifacts/.
-    
+
     - uses: actions/upload-artifact@v1
       with:
         name: plugin-artifacts
