@@ -65,17 +65,17 @@ set SPRINGLOADED_PARAMS="profile=grails;cacheDir=%GRAILS_AGENT_CACHE_DIR%"
 if not exist "%GRAILS_AGENT_CACHE_DIR%" mkdir "%GRAILS_AGENT_CACHE_DIR%"
 
 if "%GRAILS_NO_PERMGEN%" == "" (
-	type "%JAVA_HOME%\include\classfile_constants.h" 2>nul | findstr /R /C:"#define JVM_CLASSFILE_MAJOR_VERSION 5[23]" >nul
-	if not errorlevel 1 set GRAILS_NO_PERMGEN=1
+    type "%JAVA_HOME%\include\classfile_constants.h" 2>nul | findstr /R /C:"#define JVM_CLASSFILE_MAJOR_VERSION 5[23]" >nul
+    if not errorlevel 1 set GRAILS_NO_PERMGEN=1
 )
 
 set AGENT_STRING=-javaagent:wrapper/springloaded-1.2.7.RELEASE.jar -Xverify:none -Dspringloaded.synchronize=true -Djdk.reflect.allowGetCallerClass=true -Dspringloaded=\"%SPRINGLOADED_PARAMS%\"
 set DISABLE_RELOADING=
 if "%GRAILS_OPTS%" == "" (
-	set GRAILS_OPTS=-server -Xmx768M -Xms64M -Dfile.encoding=UTF-8
-	if not "%GRAILS_NO_PERMGEN%" == "1" (
-		set GRAILS_OPTS=-server -Xmx768M -Xms64M -XX:PermSize=32m -XX:MaxPermSize=256m -Dfile.encoding=UTF-8
-	)
+    set GRAILS_OPTS=-server -Xmx768M -Xms64M -Dfile.encoding=UTF-8
+    if not "%GRAILS_NO_PERMGEN%" == "1" (
+        set GRAILS_OPTS=-server -Xmx768M -Xms64M -XX:PermSize=32m -XX:MaxPermSize=256m -Dfile.encoding=UTF-8
+    )
 )
 
 @rem Get command-line arguments, handling Windows variants
@@ -90,44 +90,44 @@ set INTERACTIVE=true
 if "x%~1" == "x" goto execute
 set CURR_ARG=%~1
 if "%CURR_ARG:~0,2%" == "-D" (
-	set CMD_LINE_ARGS=%CMD_LINE_ARGS% %~1=%~2
-	shift
-	shift
-	goto win9xME_args_slurp
+    set CMD_LINE_ARGS=%CMD_LINE_ARGS% %~1=%~2
+    shift
+    shift
+    goto win9xME_args_slurp
 )
 if "x%~1" == "x-cp" (
-	set CP=%~2
-	shift
-	shift
-	goto win9xME_args_slurp
+    set CP=%~2
+    shift
+    shift
+    goto win9xME_args_slurp
 )
 if "x%~1" == "x-debug" (
-	set JAVA_OPTS=%JAVA_OPTS% -Xdebug -Xnoagent -Dgrails.full.stacktrace=true -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005
-	shift
-	goto win9xME_args_slurp
+    set JAVA_OPTS=%JAVA_OPTS% -Xdebug -Xnoagent -Dgrails.full.stacktrace=true -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005
+    shift
+    goto win9xME_args_slurp
 )
 if "x%~1" == "x-classpath" (
-	set CP=%~2
-	shift
-	shift
-	goto win9xME_args_slurp
+    set CP=%~2
+    shift
+    shift
+    goto win9xME_args_slurp
 )
 if "x%~1" == "x-reloading" (
-	set AGENT=%AGENT_STRING%
-	shift
-	goto win9xME_args_slurp
+    set AGENT=%AGENT_STRING%
+    shift
+    goto win9xME_args_slurp
 )
 if "x%~1" == "xrun-app" (
-	set AGENT=%AGENT_STRING%
-	set INTERACTIVE=
-	set CMD_LINE_ARGS=%CMD_LINE_ARGS% %1
-	shift
-	goto win9xME_args_slurp
+    set AGENT=%AGENT_STRING%
+    set INTERACTIVE=
+    set CMD_LINE_ARGS=%CMD_LINE_ARGS% %1
+    shift
+    goto win9xME_args_slurp
 )
 if "x%~1" == "x-noreloading" (
-	set DISABLE_RELOADING=true
-	shift
-	goto win9xME_args_slurp
+    set DISABLE_RELOADING=true
+    shift
+    goto win9xME_args_slurp
 )
 set INTERACTIVE=
 set CMD_LINE_ARGS=%CMD_LINE_ARGS% %1
@@ -152,11 +152,11 @@ set CP=%CP%;%CLASSPATH%
 :after_classpath
 
 if "x%DISABLE_RELOADING%" == "xtrue" (
-	set AGENT=
+    set AGENT=
 ) else (
-	if "x%INTERACTIVE%" == "xtrue" (
-		set AGENT=%AGENT_STRING%
-	)
+    if "x%INTERACTIVE%" == "xtrue" (
+        set AGENT=%AGENT_STRING%
+    )
 )
 
 set STARTER_MAIN_CLASS=org.grails.wrapper.GrailsWrapper

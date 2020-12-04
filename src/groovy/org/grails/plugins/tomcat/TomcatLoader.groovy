@@ -36,41 +36,41 @@ import org.slf4j.LoggerFactory
 @CompileStatic
 class TomcatLoader extends LifecycleBase implements Loader {
 
-	protected Logger log = LoggerFactory.getLogger(getClass())
+    protected Logger log = LoggerFactory.getLogger(getClass())
 
-	ClassLoader classLoader
-	Context context
-	boolean delegate
-	boolean reloadable
+    ClassLoader classLoader
+    Context context
+    boolean delegate
+    boolean reloadable
 
-	TomcatLoader(ClassLoader cl) {
-		// Class loader that only searches the parent
-		classLoader = new ParentDelegatingClassLoader(cl)
-	}
+    TomcatLoader(ClassLoader cl) {
+        // Class loader that only searches the parent
+        classLoader = new ParentDelegatingClassLoader(cl)
+    }
 
-	@Override
-	protected void initInternal() {}
+    @Override
+    protected void initInternal() {}
 
-	@Override
-	protected void destroyInternal() {
-		classLoader = null
-	}
+    @Override
+    protected void destroyInternal() {
+        classLoader = null
+    }
 
-	@Override
-	protected void startInternal() {
-		fireLifecycleEvent Lifecycle.START_EVENT, this
-		setState LifecycleState.STARTING
-	}
+    @Override
+    protected void startInternal() {
+        fireLifecycleEvent Lifecycle.START_EVENT, this
+        setState LifecycleState.STARTING
+    }
 
-	@Override
-	protected void stopInternal() {
-		fireLifecycleEvent Lifecycle.STOP_EVENT, this
-		setState LifecycleState.STOPPING
-	}
+    @Override
+    protected void stopInternal() {
+        fireLifecycleEvent Lifecycle.STOP_EVENT, this
+        setState LifecycleState.STOPPING
+    }
 
-	void addPropertyChangeListener(PropertyChangeListener listener) {}
-	void removePropertyChangeListener(PropertyChangeListener listener) {}
-	void addRepository(String repository) {}
-	void backgroundProcess() {}
-	boolean modified() { false }
+    void addPropertyChangeListener(PropertyChangeListener listener) {}
+    void removePropertyChangeListener(PropertyChangeListener listener) {}
+    void addRepository(String repository) {}
+    void backgroundProcess() {}
+    boolean modified() { false }
 }

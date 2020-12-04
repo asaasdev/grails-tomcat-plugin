@@ -28,50 +28,50 @@ import org.grails.plugins.tomcat.fork.TomcatExecutionContext
 @CompileStatic
 class TomcatServerFactory implements EmbeddableServerFactory, BuildSettingsAware {
 
-	BuildSettings buildSettings
+    BuildSettings buildSettings
 
-	EmbeddableServer createInline(String basedir, String webXml, String contextPath, ClassLoader classLoader) {
-		final obj = buildSettings?.forkSettings?.get("run")
-		if (obj) {
-			return createForked(contextPath, obj)
-		}
+    EmbeddableServer createInline(String basedir, String webXml, String contextPath, ClassLoader classLoader) {
+        final obj = buildSettings?.forkSettings?.get("run")
+        if (obj) {
+            return createForked(contextPath, obj)
+        }
 
-		new InlineExplodedTomcatServer(basedir, webXml, contextPath, classLoader)
-	}
+        new InlineExplodedTomcatServer(basedir, webXml, contextPath, classLoader)
+    }
 
-	protected ForkedTomcatServer createForked(String contextPath, forkConfig, boolean warMode = false) {
-		final settings = buildSettings
-		TomcatExecutionContext ec = new TomcatExecutionContext()
-		final forkedTomcat = new ForkedTomcatServer(ec)
-		ec.process = forkedTomcat
+    protected ForkedTomcatServer createForked(String contextPath, forkConfig, boolean warMode = false) {
+        final settings = buildSettings
+        TomcatExecutionContext ec = new TomcatExecutionContext()
+        final forkedTomcat = new ForkedTomcatServer(ec)
+        ec.process = forkedTomcat
 
-		ec.initialize settings
-		ec.contextPath = contextPath
-		ec.resourcesDir = settings.resourcesDir
-		if (warMode) {
-			ec.warPath = settings.projectWarFile.canonicalPath
-		}
+        ec.initialize settings
+        ec.contextPath = contextPath
+        ec.resourcesDir = settings.resourcesDir
+        if (warMode) {
+            ec.warPath = settings.projectWarFile.canonicalPath
+        }
 
-		if (forkConfig instanceof Map) {
-			forkedTomcat.configure((Map)forkConfig)
-		}
+        if (forkConfig instanceof Map) {
+            forkedTomcat.configure((Map)forkConfig)
+        }
 
-		def tomcatJvmArgs = getTomcatJvmArgs()
-		if (tomcatJvmArgs instanceof List) {
-			forkedTomcat.jvmArgs = (List<String>)tomcatJvmArgs
-		}
+        def tomcatJvmArgs = getTomcatJvmArgs()
+        if (tomcatJvmArgs instanceof List) {
+            forkedTomcat.jvmArgs = (List<String>)tomcatJvmArgs
+        }
 
-		forkedTomcat
-	}
+        forkedTomcat
+    }
 
-	@CompileStatic(TypeCheckingMode.SKIP)
-	protected getTomcatJvmArgs() {
-		buildSettings.config?.grails?.tomcat?.jvmArgs
-	}
+    @CompileStatic(TypeCheckingMode.SKIP)
+    protected getTomcatJvmArgs() {
+        buildSettings.config?.grails?.tomcat?.jvmArgs
+    }
 
-	EmbeddableServer createForWAR(String warPath, String contextPath) {
-		buildSettings.projectWarFile = new File(warPath)
-		final forkConfig = buildSettings?.forkSettings?.get("war") ?: buildSettings?.forkSettings?.get("run") ?: [:]
-		createForked contextPath, forkConfig, true
-	}
+    EmbeddableServer createForWAR(String warPath, String contextPath) {
+        buildSettings.projectWarFile = new File(warPath)
+        final forkConfig = buildSettings?.forkSettings?.get("war") ?: buildSettings?.forkSettings?.get("run") ?: [:]
+        createForked contextPath, forkConfig, true
+    }
 }

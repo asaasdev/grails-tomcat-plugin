@@ -29,50 +29,50 @@ import java.net.ServerSocket;
  */
 public class TomcatKillSwitch implements Runnable {
 
-	public static final String TOMCAT_KILL_SWITCH_ACTIVE = "TomcatKillSwitch.active";
+    public static final String TOMCAT_KILL_SWITCH_ACTIVE = "TomcatKillSwitch.active";
 
-	protected Tomcat tomcat;
-	protected int serverPort;
+    protected Tomcat tomcat;
+    protected int serverPort;
 
-	public TomcatKillSwitch(Tomcat tomcat, int serverPort) {
-		this.tomcat = tomcat;
-		this.serverPort = serverPort;
-	}
+    public TomcatKillSwitch(Tomcat tomcat, int serverPort) {
+        this.tomcat = tomcat;
+        this.serverPort = serverPort;
+    }
 
-	public static boolean isActive() {
-		return Boolean.getBoolean("TomcatKillSwitch.active");
-	}
+    public static boolean isActive() {
+        return Boolean.getBoolean("TomcatKillSwitch.active");
+    }
 
-	public void run() {
-		System.setProperty("TomcatKillSwitch.active", "true");
-		int killListenerPort = serverPort + 1;
-		ServerSocket serverSocket = createKillSwitch(killListenerPort);
-		if (serverSocket != null) {
-			try {
-				serverSocket.accept();
-				try {
-					tomcat.stop();
-					tomcat.destroy();
-					System.setProperty(TOMCAT_KILL_SWITCH_ACTIVE, "false");
-					System.exit(0);
-				}
-				catch (LifecycleException e) {
-					System.err.println("Error stopping Tomcat: " + e.getMessage());
-					System.exit(1);
-				}
-			}
-			catch (IOException e) {
-				// just exit
-			}
-		}
-	}
+    public void run() {
+        System.setProperty("TomcatKillSwitch.active", "true");
+        int killListenerPort = serverPort + 1;
+        ServerSocket serverSocket = createKillSwitch(killListenerPort);
+        if (serverSocket != null) {
+            try {
+                serverSocket.accept();
+                try {
+                    tomcat.stop();
+                    tomcat.destroy();
+                    System.setProperty(TOMCAT_KILL_SWITCH_ACTIVE, "false");
+                    System.exit(0);
+                }
+                catch (LifecycleException e) {
+                    System.err.println("Error stopping Tomcat: " + e.getMessage());
+                    System.exit(1);
+                }
+            }
+            catch (IOException e) {
+                // just exit
+            }
+        }
+    }
 
-	protected static ServerSocket createKillSwitch(int killListenerPort) {
-		try {
-			return new ServerSocket(killListenerPort);
-		}
-		catch (IOException e) {
-			return null;
-		}
-	}
+    protected static ServerSocket createKillSwitch(int killListenerPort) {
+        try {
+            return new ServerSocket(killListenerPort);
+        }
+        catch (IOException e) {
+            return null;
+        }
+    }
 }

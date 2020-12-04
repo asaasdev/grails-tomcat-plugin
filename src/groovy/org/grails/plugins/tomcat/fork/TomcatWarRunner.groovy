@@ -33,46 +33,46 @@ import org.grails.plugins.tomcat.TomcatServer
 @CompileStatic
 class TomcatWarRunner extends TomcatServer {
 
-	protected static final GrailsConsole CONSOLE = GrailsConsole.getInstance()
+    protected static final GrailsConsole CONSOLE = GrailsConsole.getInstance()
 
-	protected String warPath
-	protected String contextPath
+    protected String warPath
+    protected String contextPath
 
-	TomcatWarRunner(String warPath, String contextPath) {
-		this.warPath = warPath
-		this.contextPath = contextPath
-	}
+    TomcatWarRunner(String warPath, String contextPath) {
+        this.warPath = warPath
+        this.contextPath = contextPath
+    }
 
-	@Override
-	protected void doStart(String host, int httpPort, int httpsPort) {
+    @Override
+    protected void doStart(String host, int httpPort, int httpsPort) {
 
-		Metadata.getCurrent()[Metadata.WAR_DEPLOYED] = "true"
-		tomcat.silent = true
+        Metadata.getCurrent()[Metadata.WAR_DEPLOYED] = "true"
+        tomcat.silent = true
 
-		try {
-			context = tomcat.addWebapp(contextPath, warPath)
-		}
-		catch (Throwable e) {
-			CONSOLE.error "Error loading Tomcat: $e.message", e
-			System.exit 1
-		}
+        try {
+            context = tomcat.addWebapp(contextPath, warPath)
+        }
+        catch (Throwable e) {
+            CONSOLE.error "Error loading Tomcat: $e.message", e
+            System.exit 1
+        }
 
-		super.doStart host, httpPort, httpsPort
+        super.doStart host, httpPort, httpsPort
 
-		ForkedTomcatServer.startKillSwitch tomcat, httpPort
+        ForkedTomcatServer.startKillSwitch tomcat, httpPort
 
-		try {
-			tomcat.start()
-			CONSOLE.addStatus "Server running. Browse to http://${host ?: "localhost"}:$httpPort$contextPath"
-		}
-		catch (LifecycleException e) {
-			CONSOLE.error "Error loading Tomcat: $e.message", e
-			System.exit 1
-		}
-	}
+        try {
+            tomcat.start()
+            CONSOLE.addStatus "Server running. Browse to http://${host ?: "localhost"}:$httpPort$contextPath"
+        }
+        catch (LifecycleException e) {
+            CONSOLE.error "Error loading Tomcat: $e.message", e
+            System.exit 1
+        }
+    }
 
-	@Override
-	void stop() {
-		tomcat.stop()
-	}
+    @Override
+    void stop() {
+        tomcat.stop()
+    }
 }

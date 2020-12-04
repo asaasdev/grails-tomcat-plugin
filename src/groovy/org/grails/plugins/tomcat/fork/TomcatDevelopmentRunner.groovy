@@ -30,68 +30,68 @@ import org.grails.plugins.tomcat.InlineExplodedTomcatServer
 @CompileStatic
 class TomcatDevelopmentRunner extends InlineExplodedTomcatServer {
 
-	protected String currentHost
-	protected int currentPort
-	protected ClassLoader forkedClassLoader
+    protected String currentHost
+    protected int currentPort
+    protected ClassLoader forkedClassLoader
 
-	TomcatDevelopmentRunner(String basedir, String webXml, String contextPath, ClassLoader classLoader) {
-		super(basedir, webXml, contextPath, classLoader)
-		forkedClassLoader = classLoader
-	}
+    TomcatDevelopmentRunner(String basedir, String webXml, String contextPath, ClassLoader classLoader) {
+        super(basedir, webXml, contextPath, classLoader)
+        forkedClassLoader = classLoader
+    }
 
-	@Override
-	@CompileStatic
-	protected void initialize(Tomcat tomcat) {
-		final autodeployDir = buildSettings.autodeployDir
-		if (autodeployDir.exists()) {
-			for (File f in autodeployDir.listFiles()) {
-				if (f.name.endsWith(".war")) {
-					configureJarScanner tomcat.addWebapp(f.name - '.war', f.absolutePath)
-				}
-			}
-		}
+    @Override
+    @CompileStatic
+    protected void initialize(Tomcat tomcat) {
+        final autodeployDir = buildSettings.autodeployDir
+        if (autodeployDir.exists()) {
+            for (File f in autodeployDir.listFiles()) {
+                if (f.name.endsWith(".war")) {
+                    configureJarScanner tomcat.addWebapp(f.name - '.war', f.absolutePath)
+                }
+            }
+        }
 
-		invokeCustomizer tomcat
-	}
+        invokeCustomizer tomcat
+    }
 
-	@CompileStatic(TypeCheckingMode.SKIP)
-	protected void invokeCustomizer(Tomcat tomcat) {
-		Class cls
-		try { cls = forkedClassLoader.loadClass("org.grails.plugins.tomcat.ForkedTomcatCustomizer") }
-		catch (Throwable ignored) {}
+    @CompileStatic(TypeCheckingMode.SKIP)
+    protected void invokeCustomizer(Tomcat tomcat) {
+        Class cls
+        try { cls = forkedClassLoader.loadClass("org.grails.plugins.tomcat.ForkedTomcatCustomizer") }
+        catch (Throwable ignored) {}
 
-		if (cls) {
-			try {
-				cls.newInstance().customize tomcat
-			}
-			catch (e) {
-				throw new RuntimeException("Error invoking Tomcat server customizer: $e.message", e)
-			}
-		}
-	}
+        if (cls) {
+            try {
+                cls.newInstance().customize tomcat
+            }
+            catch (e) {
+                throw new RuntimeException("Error invoking Tomcat server customizer: $e.message", e)
+            }
+        }
+    }
 
-	@Override
-	protected void configureAliases(Context context) {
-		def aliases = [:]
-		for (Resource dir in GrailsPluginUtils.getPluginDirectories()) {
-			def webappDir = new File(dir.file.absolutePath, "web-app")
-			if (webappDir.exists()) {
-				aliases["/plugins/$dir.file.name"] = webappDir.absolutePath
-			}
-		}
-		registerAliases aliases
-	}
+    @Override
+    protected void configureAliases(Context context) {
+        def aliases = [:]
+        for (Resource dir in GrailsPluginUtils.getPluginDirectories()) {
+            def webappDir = new File(dir.file.absolutePath, "web-app")
+            if (webappDir.exists()) {
+                aliases["/plugins/$dir.file.name"] = webappDir.absolutePath
+            }
+        }
+        registerAliases aliases
+    }
 
-	@Override
-	void start(String host, int port) {
-		currentHost = host
-		currentPort = port
-		super.start host, port
-	}
+    @Override
+    void start(String host, int port) {
+        currentHost = host
+        currentPort = port
+        super.start host, port
+    }
 
-	@Override
-	void stop() {
-		try { new URL("http://${currentHost}:${currentPort + 1}").text }
-		catch (ignored) {}
-	}
+    @Override
+    void stop() {
+        try { new URL("http://${currentHost}:${currentPort + 1}").text }
+        catch (ignored) {}
+    }
 }

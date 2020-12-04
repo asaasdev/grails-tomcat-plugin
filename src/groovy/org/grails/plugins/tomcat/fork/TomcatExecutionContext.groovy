@@ -30,20 +30,20 @@ import org.codehaus.groovy.grails.cli.fork.ForkedGrailsProcess
  */
 @CompileStatic
 class TomcatExecutionContext extends ExecutionContext {
-	private static final long serialVersionUID = 1
+    private static final long serialVersionUID = 1
 
-	String contextPath
-	String host = EmbeddableServer.DEFAULT_HOST
-	int port = EmbeddableServer.DEFAULT_PORT
-	int securePort
-	String warPath
+    String contextPath
+    String host = EmbeddableServer.DEFAULT_HOST
+    int port = EmbeddableServer.DEFAULT_PORT
+    int securePort
+    String warPath
 
-	@Override
-	protected List<File> buildMinimalIsolatedClasspath(BuildSettings buildSettings) {
-		final buildDependencies = super.buildMinimalIsolatedClasspath(buildSettings)
-		final tomcatJars = process.findSystemClasspathJars(buildSettings)
-		buildDependencies.addAll tomcatJars.findAll { File f -> !f.name.contains('juli')}
+    @Override
+    protected List<File> buildMinimalIsolatedClasspath(BuildSettings buildSettings) {
+        final buildDependencies = super.buildMinimalIsolatedClasspath(buildSettings)
+        final tomcatJars = process.findSystemClasspathJars(buildSettings)
+        buildDependencies.addAll tomcatJars.findAll { File f -> !f.name.contains('juli')}
 
-		return buildDependencies
-	}
+        return buildDependencies
+    }
 }

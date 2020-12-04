@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 class TomcatGrailsPlugin {
-	def version = '9.0.39'
-	def grailsVersion = '2.5 > *'
-	def scopes = [excludes: 'war']
-	def title = 'Apache Tomcat plugin'
-	def description = 'Makes Tomcat 9.0.x the servlet container for Grails at development time'
-	def documentation = 'http://grails.org/plugin/tomcat'
-	def license = 'APACHE'
-	def organization = [name: 'Grails', url: 'http://www.grails.org']
-	def developers = [
-		[name: 'Graeme Rocher', email: 'rocherg@ociweb.com'],
-		[name: 'Burt Beckwith', email: 'burt@burtbeckwith.com']
-	]
-	def issueManagement = [url: 'https://github.com/grails-plugins/grails-tomcat-plugin/issues']
-	def scm = [url: 'https://github.com/grails-plugins/grails-tomcat-plugin']
+    def version = '9.0.39'
+    def grailsVersion = '2.5 > *'
+    def scopes = [excludes: 'war']
+    def title = 'Apache Tomcat plugin'
+    def description = 'Makes Tomcat 9.0.x the servlet container for Grails at development time'
+    def documentation = 'http://grails.org/plugin/tomcat'
+    def license = 'APACHE'
+    def organization = [name: 'Grails', url: 'http://www.grails.org']
+    def developers = [
+        [name: 'Graeme Rocher', email: 'rocherg@ociweb.com'],
+        [name: 'Burt Beckwith', email: 'burt@burtbeckwith.com']
+    ]
+    def issueManagement = [url: 'https://github.com/grails-plugins/grails-tomcat-plugin/issues']
+    def scm = [url: 'https://github.com/grails-plugins/grails-tomcat-plugin']
 }

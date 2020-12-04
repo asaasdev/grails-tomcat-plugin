@@ -43,286 +43,286 @@ import org.springframework.util.ReflectionUtils
 @CompileStatic
 abstract class TomcatServer implements EmbeddableServer {
 
-	private static final int NULL_INT = Integer.MIN_VALUE
+    private static final int NULL_INT = Integer.MIN_VALUE
 
-	protected final BuildSettings buildSettings
-	protected final PluginBuildSettings pluginSettings
+    protected final BuildSettings buildSettings
+    protected final PluginBuildSettings pluginSettings
 
-	protected final File workDir
-	protected final File tomcatDir
+    protected final File workDir
+    protected final File tomcatDir
 
-	protected boolean usingUserKeystore
-	protected File keystoreFile
-	protected String keyPassword
-	protected String truststore
-	protected File truststoreFile
-	protected String trustPassword
-	protected Boolean shouldScan = false
-	protected Set<String> extraJarsToSkip
+    protected boolean usingUserKeystore
+    protected File keystoreFile
+    protected String keyPassword
+    protected String truststore
+    protected File truststoreFile
+    protected String trustPassword
+    protected Boolean shouldScan = false
+    protected Set<String> extraJarsToSkip
 
-	Context context
-	final Tomcat tomcat = new Tomcat()
+    Context context
+    final Tomcat tomcat = new Tomcat()
 
-	// These are set from the outside in _GrailsRun
-	def grailsConfig
-	GrailsBuildEventListener eventListener
+    // These are set from the outside in _GrailsRun
+    def grailsConfig
+    GrailsBuildEventListener eventListener
 
-	TomcatServer() {
-		buildSettings = BuildSettingsHolder.getSettings()
-		pluginSettings = GrailsPluginUtils.getPluginBuildSettings()
+    TomcatServer() {
+        buildSettings = BuildSettingsHolder.getSettings()
+        pluginSettings = GrailsPluginUtils.getPluginBuildSettings()
 
-		workDir = buildSettings.projectWorkDir
-		tomcatDir = getWorkDirFile('tomcat')
-		tomcat.baseDir = tomcatDir.absolutePath
+        workDir = buildSettings.projectWorkDir
+        tomcatDir = getWorkDirFile('tomcat')
+        tomcat.baseDir = tomcatDir.absolutePath
 
-		initKeystore()
+        initKeystore()
 
-		System.setProperty 'org.mortbay.xml.XmlParser.NotValidating', 'true'
+        System.setProperty 'org.mortbay.xml.XmlParser.NotValidating', 'true'
 
-		Map scanConfig = (Map)getConfigParam('scan')
-		if (scanConfig) {
-			shouldScan = (Boolean) (scanConfig.enabled instanceof Boolean ? scanConfig.enabled : false)
-			extraJarsToSkip = (Set)((scanConfig.excludes instanceof Collection) ? scanConfig.excludes.collect { it.toString() } : [])
-		}
+        Map scanConfig = (Map)getConfigParam('scan')
+        if (scanConfig) {
+            shouldScan = (Boolean) (scanConfig.enabled instanceof Boolean ? scanConfig.enabled : false)
+            extraJarsToSkip = (Set)((scanConfig.excludes instanceof Collection) ? scanConfig.excludes.collect { it.toString() } : [])
+        }
 
-		tomcatDir.deleteDir()
-		new File(tomcatDir, 'webapps').mkdirs()
+        tomcatDir.deleteDir()
+        new File(tomcatDir, 'webapps').mkdirs()
 
-		initListeners()
-	}
+        initListeners()
+    }
 
-	protected void initKeystore() {
-		def userKeystore = getConfigParam('keystorePath')
-		if (userKeystore) {
-			usingUserKeystore = true
-			keystoreFile = new File(userKeystore.toString())
-			keyPassword = getConfigParam('keystorePassword') ?: 'changeit' // changeit is the keystore default
-		}
-		else {
-			usingUserKeystore = false
-			keystoreFile = getWorkDirFile('ssl/keystore')
-			keyPassword = '123456'
-		}
+    protected void initKeystore() {
+        def userKeystore = getConfigParam('keystorePath')
+        if (userKeystore) {
+            usingUserKeystore = true
+            keystoreFile = new File(userKeystore.toString())
+            keyPassword = getConfigParam('keystorePassword') ?: 'changeit' // changeit is the keystore default
+        }
+        else {
+            usingUserKeystore = false
+            keystoreFile = getWorkDirFile('ssl/keystore')
+            keyPassword = '123456'
+        }
 
-		def userTruststore = getConfigParam('truststorePath')
-		if (userTruststore) {
-			truststore = userTruststore
-			trustPassword = getConfigParam('truststorePassword') ?: 'changeit'
-		}
-		else {
-			truststore = "${buildSettings.grailsWorkDir}/ssl/truststore"
-			trustPassword = '123456'
-		}
+        def userTruststore = getConfigParam('truststorePath')
+        if (userTruststore) {
+            truststore = userTruststore
+            trustPassword = getConfigParam('truststorePassword') ?: 'changeit'
+        }
+        else {
+            truststore = "${buildSettings.grailsWorkDir}/ssl/truststore"
+            trustPassword = '123456'
+        }
 
-		truststoreFile = new File(truststore)
-	}
+        truststoreFile = new File(truststore)
+    }
 
-	protected void initListeners() {
-		tomcat.server.addLifecycleListener new AprLifecycleListener(SSLEngine: 'on', useAprConnector: true)
-	}
+    protected void initListeners() {
+        tomcat.server.addLifecycleListener new AprLifecycleListener(SSLEngine: 'on', useAprConnector: true)
+    }
 
-	@CompileStatic(TypeCheckingMode.SKIP)
-	protected void configureSsl(String host, int httpsPort) {
-		def sslConnector
-		try {
-			sslConnector = loadInstance('org.apache.catalina.connector.Connector')
-		}
-		catch (Exception e) {
-			throw new RuntimeException("Couldn't create HTTPS connector", e)
-		}
+    @CompileStatic(TypeCheckingMode.SKIP)
+    protected void configureSsl(String host, int httpsPort) {
+        def sslConnector
+        try {
+            sslConnector = loadInstance('org.apache.catalina.connector.Connector')
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Couldn't create HTTPS connector", e)
+        }
 
-		sslConnector.scheme = 'https'
-		sslConnector.secure = true
-		sslConnector.port = httpsPort
-		sslConnector.setProperty 'SSLEnabled', 'true'
-		sslConnector.URIEncoding = 'UTF-8'
+        sslConnector.scheme = 'https'
+        sslConnector.secure = true
+        sslConnector.port = httpsPort
+        sslConnector.setProperty 'SSLEnabled', 'true'
+        sslConnector.URIEncoding = 'UTF-8'
 
-		if (host != 'localhost') {
-			sslConnector.setAttribute 'address', host
-		}
+        if (host != 'localhost') {
+            sslConnector.setAttribute 'address', host
+        }
 
-		def certificateKeyFile = getConfigParam('certificateKeyFile') ?: ''
-		def certificateFile = getConfigParam('certificateFile') ?: ''
-		if (certificateKeyFile && certificateFile) {
-			sslConnector.setAttribute 'SSLHonorCipherOrder', false
-			sslConnector.setAttribute 'SSLCertificateKeyFile', certificateKeyFile
-			sslConnector.setAttribute 'SSLCertificateFile', certificateFile
-			def certificateKeyPassword = getConfigParam('certificateKeyPassword') ?: ''
-			if (certificateKeyPassword) {
-				sslConnector.setAttribute 'SSLPassword', certificateKeyPassword
-			}
-		}
-		else {
-			sslConnector.setAttribute 'keystoreFile', keystoreFile.absolutePath
-			sslConnector.setAttribute 'keystorePass', keyPassword
+        def certificateKeyFile = getConfigParam('certificateKeyFile') ?: ''
+        def certificateFile = getConfigParam('certificateFile') ?: ''
+        if (certificateKeyFile && certificateFile) {
+            sslConnector.setAttribute 'SSLHonorCipherOrder', false
+            sslConnector.setAttribute 'SSLCertificateKeyFile', certificateKeyFile
+            sslConnector.setAttribute 'SSLCertificateFile', certificateFile
+            def certificateKeyPassword = getConfigParam('certificateKeyPassword') ?: ''
+            if (certificateKeyPassword) {
+                sslConnector.setAttribute 'SSLPassword', certificateKeyPassword
+            }
+        }
+        else {
+            sslConnector.setAttribute 'keystoreFile', keystoreFile.absolutePath
+            sslConnector.setAttribute 'keystorePass', keyPassword
 
-			if (truststoreFile.exists()) {
-				CONSOLE.addStatus "Using truststore $truststore"
-				sslConnector.setAttribute 'truststoreFile', truststore
-				sslConnector.setAttribute 'truststorePass', trustPassword
-				sslConnector.setAttribute 'clientAuth', getConfigParam('clientAuth') ?: 'want'
-			}
-		}
+            if (truststoreFile.exists()) {
+                CONSOLE.addStatus "Using truststore $truststore"
+                sslConnector.setAttribute 'truststoreFile', truststore
+                sslConnector.setAttribute 'truststorePass', trustPassword
+                sslConnector.setAttribute 'clientAuth', getConfigParam('clientAuth') ?: 'want'
+            }
+        }
 
-		sslConnector.addUpgradeProtocol loadInstance('org.apache.coyote.http2.Http2Protocol')
+        sslConnector.addUpgradeProtocol loadInstance('org.apache.coyote.http2.Http2Protocol')
 
-		tomcat.service.addConnector sslConnector
-	}
+        tomcat.service.addConnector sslConnector
+    }
 
-	protected loadInstance(String name) {
-		tomcat.getClass().classLoader.loadClass(name).newInstance()
-	}
+    protected loadInstance(String name) {
+        tomcat.getClass().classLoader.loadClass(name).newInstance()
+    }
 
-	protected void configureJarScanner(Context context) {
-		if (extraJarsToSkip && shouldScan) {
-			try {
-				def jarsToSkipField = ReflectionUtils.findField(StandardJarScanner, 'defaultJarsToSkip', Set)
-				ReflectionUtils.makeAccessible jarsToSkipField
-				Set jarsToSkip = (Set)jarsToSkipField.get(StandardJarScanner)
-				jarsToSkip.addAll extraJarsToSkip
-			}
-			catch (ignored) {}
-		}
+    protected void configureJarScanner(Context context) {
+        if (extraJarsToSkip && shouldScan) {
+            try {
+                def jarsToSkipField = ReflectionUtils.findField(StandardJarScanner, 'defaultJarsToSkip', Set)
+                ReflectionUtils.makeAccessible jarsToSkipField
+                Set jarsToSkip = (Set)jarsToSkipField.get(StandardJarScanner)
+                jarsToSkip.addAll extraJarsToSkip
+            }
+            catch (ignored) {}
+        }
 
-		context.jarScanner = new StandardJarScanner(scanClassPath: shouldScan)
-	}
+        context.jarScanner = new StandardJarScanner(scanClassPath: shouldScan)
+    }
 
-	/**
-	 * The host and port params will never be null, defaults will be passed if necessary.
-	 *
-	 * If httpsPort is > 0, the server should listen for https requests on that port.
-	 */
-	protected void doStart(String host, int httpPort, int httpsPort) {
-		tomcat.port = httpPort
+    /**
+     * The host and port params will never be null, defaults will be passed if necessary.
+     *
+     * If httpsPort is > 0, the server should listen for https requests on that port.
+     */
+    protected void doStart(String host, int httpPort, int httpsPort) {
+        tomcat.port = httpPort
 
-		if (getConfigParam("nio")) {
-			CONSOLE.updateStatus "Enabling Tomcat NIO Connector"
-			def connector = new Connector(Http11NioProtocol.name)
-			connector.port = httpPort
-			tomcat.service.addConnector connector
-			tomcat.connector = connector
-		}
+        if (getConfigParam("nio")) {
+            CONSOLE.updateStatus "Enabling Tomcat NIO Connector"
+            def connector = new Connector(Http11NioProtocol.name)
+            connector.port = httpPort
+            tomcat.service.addConnector connector
+            tomcat.connector = connector
+        }
 
-		try {
-			configureJarScanner context
-		}
-		catch (Throwable e) {
-			CONSOLE.error "Error loading Tomcat: $e.message", e
-			System.exit 1
-		}
+        try {
+            configureJarScanner context
+        }
+        catch (Throwable e) {
+            CONSOLE.error "Error loading Tomcat: $e.message", e
+            System.exit 1
+        }
 
-		tomcat.enableNaming()
+        tomcat.enableNaming()
 
-		final Connector connector = tomcat.connector
+        final Connector connector = tomcat.connector
 
-		// Only bind to host name if we aren't using the default
-		if (host != "localhost") {
-			connector.setAttribute "address", host
-			connector.setAttribute "port", httpPort
-		}
+        // Only bind to host name if we aren't using the default
+        if (host != "localhost") {
+            connector.setAttribute "address", host
+            connector.setAttribute "port", httpPort
+        }
 
-		connector.URIEncoding = "UTF-8"
+        connector.URIEncoding = "UTF-8"
 
-		if (httpsPort) {
-			configureSsl host, httpsPort
-		}
-	}
+        if (httpsPort) {
+            configureSsl host, httpsPort
+        }
+    }
 
-	/**
-	 * Shutdown the server.
-	 */
-	abstract void stop()
+    /**
+     * Shutdown the server.
+     */
+    abstract void stop()
 
-	void restart() {
-		stop()
-		start()
-	}
+    void restart() {
+        stop()
+        start()
+    }
 
-	void start() {
-		start null, NULL_INT
-	}
+    void start() {
+        start null, NULL_INT
+    }
 
-	void start(int port) {
-		start null, port
-	}
+    void start(int port) {
+        start null, port
+    }
 
-	void start(String host, int port) {
-		doStart host ?: DEFAULT_HOST, port ?: DEFAULT_PORT, 0
-	}
+    void start(String host, int port) {
+        doStart host ?: DEFAULT_HOST, port ?: DEFAULT_PORT, 0
+    }
 
-	void startSecure() {
-		startSecure null, NULL_INT, NULL_INT
-	}
+    void startSecure() {
+        startSecure null, NULL_INT, NULL_INT
+    }
 
-	void startSecure(int port) {
-		startSecure null, NULL_INT, port
-	}
+    void startSecure(int port) {
+        startSecure null, NULL_INT, port
+    }
 
-	void startSecure(String host, int httpPort, int httpsPort) {
-		if (!keystoreFile.exists()) {
-			if (usingUserKeystore) {
-				throw new IllegalStateException("cannot start tomcat in https because use keystore does not exist (value: $keystoreFile)")
-			}
-			else {
-				createSSLCertificate()
-			}
-		}
+    void startSecure(String host, int httpPort, int httpsPort) {
+        if (!keystoreFile.exists()) {
+            if (usingUserKeystore) {
+                throw new IllegalStateException("cannot start tomcat in https because use keystore does not exist (value: $keystoreFile)")
+            }
+            else {
+                createSSLCertificate()
+            }
+        }
 
-		doStart host ?: DEFAULT_HOST, (httpPort && httpPort != NULL_INT) ? httpPort : DEFAULT_PORT,
-				(httpsPort && httpsPort != NULL_INT) ? httpsPort : DEFAULT_SECURE_PORT
-	}
+        doStart host ?: DEFAULT_HOST, (httpPort && httpPort != NULL_INT) ? httpPort : DEFAULT_PORT,
+                (httpsPort && httpsPort != NULL_INT) ? httpsPort : DEFAULT_SECURE_PORT
+    }
 
-	protected File getWorkDirFile(String path) {
-		new File(workDir, path)
-	}
+    protected File getWorkDirFile(String path) {
+        new File(workDir, path)
+    }
 
-	@CompileStatic(TypeCheckingMode.SKIP)
-	protected getConfigParam(String name) {
-		buildSettings.config.grails.tomcat[name]
-	}
+    @CompileStatic(TypeCheckingMode.SKIP)
+    protected getConfigParam(String name) {
+        buildSettings.config.grails.tomcat[name]
+    }
 
-	@CompileStatic(TypeCheckingMode.SKIP)
-	protected Map getConfigParams() {
-		buildSettings.config.grails.tomcat
-	}
+    @CompileStatic(TypeCheckingMode.SKIP)
+    protected Map getConfigParams() {
+        buildSettings.config.grails.tomcat
+    }
 
-	@CompileStatic(TypeCheckingMode.SKIP)
-	protected createSSLCertificate() {
-		CONSOLE.updateStatus 'Creating SSL Certificate...'
+    @CompileStatic(TypeCheckingMode.SKIP)
+    protected createSSLCertificate() {
+        CONSOLE.updateStatus 'Creating SSL Certificate...'
 
-		def keystoreDir = keystoreFile.parentFile
-		if (!keystoreDir.exists() && !keystoreDir.mkdir()) {
-			throw new RuntimeException("Unable to create keystore folder: $keystoreDir.canonicalPath")
-		}
+        def keystoreDir = keystoreFile.parentFile
+        if (!keystoreDir.exists() && !keystoreDir.mkdir()) {
+            throw new RuntimeException("Unable to create keystore folder: $keystoreDir.canonicalPath")
+        }
 
-		getKeyToolClass().main(
-				'-genkey',
-				'-alias', 'tomcat',
-				'-dname', 'CN=localhost,OU=Test,O=Test,C=US',
-				'-keyalg', 'RSA',
-				'-validity', '365',
-				'-storepass', 'key',
-				'-keystore', keystoreFile.absolutePath,
-				'-storepass', keyPassword,
-				'-keypass', keyPassword)
+        getKeyToolClass().main(
+                '-genkey',
+                '-alias', 'tomcat',
+                '-dname', 'CN=localhost,OU=Test,O=Test,C=US',
+                '-keyalg', 'RSA',
+                '-validity', '365',
+                '-storepass', 'key',
+                '-keystore', keystoreFile.absolutePath,
+                '-storepass', keyPassword,
+                '-keypass', keyPassword)
 
-		println 'Created SSL Certificate.'
-	}
+        println 'Created SSL Certificate.'
+    }
 
-	protected getKeyToolClass() {
-		try {
-			// Sun JDK 8
-			Class.forName 'sun.security.tools.keytool.Main'
-		}
-		catch (ClassNotFoundException e1) {
-			try {
-				// Sun pre-JDK 8
-				Class.forName 'sun.security.tools.KeyTool'
-			}
-			catch (ClassNotFoundException e2) {
-				// no try/catch for this one, if neither is found let it fail
-				Class.forName 'com.ibm.crypto.tools.KeyTool'
-			}
-		}
-	}
+    protected getKeyToolClass() {
+        try {
+            // Sun JDK 8
+            Class.forName 'sun.security.tools.keytool.Main'
+        }
+        catch (ClassNotFoundException e1) {
+            try {
+                // Sun pre-JDK 8
+                Class.forName 'sun.security.tools.KeyTool'
+            }
+            catch (ClassNotFoundException e2) {
+                // no try/catch for this one, if neither is found let it fail
+                Class.forName 'com.ibm.crypto.tools.KeyTool'
+            }
+        }
+    }
 }
