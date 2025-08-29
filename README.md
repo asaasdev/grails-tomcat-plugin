@@ -70,7 +70,7 @@ rm -rf target
 
 grails compile
 ```
-* Execute a aplicação normalmente e verifiq;
+* Execute a aplicação normalmente e verifique;
 * Lembre de remover a pasta criada após os testes.
 
 Publicando o Plugin
