@@ -9,7 +9,7 @@ Atualizando a versão do Plugin
 
 ```groovy
 class TomcatGrailsPlugin {
-    def version = '9.0.108'
+    def version = '9.0.112'
     def grailsVersion = '2.5 > *'
 // ...
 }
@@ -20,7 +20,7 @@ class TomcatGrailsPlugin {
 ```groovy
 // ...
     dependencies {
-        String tomcatVersion = '9.0.108'
+        String tomcatVersion = '9.0.112'
         String tomcatLogVersion = '8.5.2'
 // ...
 ```
